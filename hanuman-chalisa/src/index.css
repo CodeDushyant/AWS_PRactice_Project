@@ -1,0 +1,223 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #0e0906;
+  --color-ink-soft: #17100a;
+  --color-ivory: #f6ecdd;
+  --color-saffron: #c98a4b;
+  --color-amber: #e2b06a;
+  --color-ember: #b56a30;
+
+  --font-serif-dev: "Tiro Devanagari Hindi", "Noto Serif Devanagari", serif;
+  --font-sans-dev: "Noto Sans Devanagari", "Mukta", sans-serif;
+  --font-ui: "Inter", "Manrope", sans-serif;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--color-ink);
+  color: var(--color-ivory);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+::selection {
+  background: rgba(226, 176, 106, 0.35);
+  color: #fff;
+}
+
+/* Hanuman sits in the left third of the source photo. On a cover-cropped
+   portrait viewport a centered position would crop him out entirely, so
+   mobile biases hard left/high; desktop (closer to the photo's own 16:9)
+   only needs a gentle bias to keep his face off the very top edge. */
+.hanuman-bg-photo {
+  background-position: 18% 22%;
+}
+@media (min-width: 640px) {
+  .hanuman-bg-photo {
+    background-position: 42% 30%;
+  }
+}
+
+/* Slow ambient zoom on the background scene */
+@keyframes slow-zoom {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.045);
+  }
+}
+.animate-slow-zoom {
+  animation: slow-zoom 42s ease-in-out infinite alternate;
+}
+
+/* Verse crossfade */
+@keyframes verse-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes verse-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+.animate-verse-in {
+  animation: verse-in 450ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.animate-verse-out {
+  animation: verse-out 350ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+/* Floating ember particles */
+@keyframes float-ember {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.55;
+  }
+  90% {
+    opacity: 0.35;
+  }
+  100% {
+    transform: translateY(-90vh) translateX(12px);
+    opacity: 0;
+  }
+}
+.animate-ember {
+  animation-name: float-ember;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* Cursor trail: "राम राम" particles spawned by CursorTrail.jsx */
+.ram-pointer {
+  position: fixed;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  user-select: none;
+  z-index: 999999;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-amber);
+  font-family: var(--font-sans-dev);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.85) rotate(0deg);
+  animation: ram-float 1.2s ease-out forwards;
+  will-change: transform, opacity;
+}
+@keyframes ram-float {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.75) rotate(0deg);
+  }
+  15% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--x)), calc(-50% - var(--y))) scale(1.35)
+      rotate(var(--rotate));
+  }
+}
+
+@keyframes glow-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+.animate-glow-pulse {
+  animation: glow-pulse 3.2s ease-in-out infinite;
+}
+
+/* Thin custom scrollbar for the lyrics panel */
+.thin-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.thin-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.thin-scroll::-webkit-scrollbar-thumb {
+  background: rgba(246, 236, 221, 0.18);
+  border-radius: 999px;
+}
+
+/* Custom range input (progress bar + volume) */
+input[type="range"].chalisa-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--color-amber) 0%,
+    var(--color-amber) var(--range-progress, 0%),
+    rgba(246, 236, 221, 0.18) var(--range-progress, 0%),
+    rgba(246, 236, 221, 0.18) 100%
+  );
+  cursor: pointer;
+  outline: none;
+}
+input[type="range"].chalisa-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-amber);
+  box-shadow: 0 0 0 3px rgba(226, 176, 106, 0.25);
+  transition: transform 150ms ease;
+}
+input[type="range"].chalisa-range::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+input[type="range"].chalisa-range::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-amber);
+  border: none;
+}
+input[type="range"].chalisa-range::-moz-range-progress {
+  background: var(--color-amber);
+  height: 4px;
+  border-radius: 999px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-slow-zoom,
+  .animate-ember,
+  .animate-glow-pulse,
+  .ram-pointer {
+    animation: none !important;
+  }
+  .animate-verse-in,
+  .animate-verse-out {
+    animation-duration: 1ms !important;
+  }
+}
