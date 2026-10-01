@@ -1,0 +1,1591 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0e0906" />
+  <title>Hanuman Chalisa — Listen 24/7</title>
+  <meta name="description" content="Listen to Hanuman Chalisa with synchronized Hindi verses, repeat modes and a peaceful cinematic devotional experience." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Hindi:ital@0;1&family=Noto+Sans+Devanagari:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ===== CSS Variables & Reset ===== */
+    :root {
+      --color-ink: #0e0906;
+      --color-ink-soft: #17100a;
+      --color-ivory: #f6ecdd;
+      --color-saffron: #c98a4b;
+      --color-amber: #e2b06a;
+      --color-ember: #b56a30;
+      --font-serif-dev: "Tiro Devanagari Hindi", "Noto Serif Devanagari", serif;
+      --font-sans-dev: "Noto Sans Devanagari", "Mukta", sans-serif;
+      --font-ui: "Inter", "Manrope", sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body { height: 100%; }
+
+    body {
+      background: var(--color-ink);
+      color: var(--color-ivory);
+      font-family: var(--font-ui);
+      -webkit-font-smoothing: antialiased;
+      overscroll-behavior: none;
+      overflow: hidden;
+    }
+
+    ::selection { background: rgba(226, 176, 106, 0.35); color: #fff; }
+
+    /* ===== Layout ===== */
+    .app-container {
+      position: relative;
+      height: 100svh;
+      min-height: 100svh;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    /* ===== Background Scene ===== */
+    .bg-scene {
+      position: fixed;
+      inset: 0;
+      z-index: -10;
+      overflow: hidden;
+      background: var(--color-ink);
+    }
+
+    .bg-image {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      animation: slow-zoom 42s ease-in-out infinite alternate;
+    }
+
+    .bg-image.hanuman-bg-photo {
+      background-image: url('hanuman-bg.jpg');
+      background-position: 18% 22%;
+    }
+    @media (min-width: 640px) {
+      .bg-image.hanuman-bg-photo { background-position: 42% 30%; }
+    }
+
+    .bg-image.no-photo {
+      background: #100a06;
+    }
+    .bg-image.no-photo::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 78% 38%, rgba(226,176,106,0.22), transparent 60%),
+                  radial-gradient(circle at 82% 65%, rgba(197,110,42,0.28), transparent 55%),
+                  radial-gradient(circle at 15% 85%, rgba(120,60,20,0.18), transparent 50%),
+                  radial-gradient(ellipse 60% 100% at 50% 0%, rgba(60,35,15,0.35), transparent 70%);
+    }
+
+    .bg-overlay-1 {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.1), rgba(0,0,0,0.85));
+    }
+    .bg-overlay-2 {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, var(--color-ink), transparent);
+    }
+    .bg-overlay-3 {
+      position: absolute;
+      inset: 0;
+      display: none;
+      background: linear-gradient(to right, transparent, transparent, rgba(0,0,0,0.55));
+    }
+    @media (min-width: 640px) { .bg-overlay-3 { display: block; } }
+
+    .bg-overlay-4 {
+      position: absolute;
+      top: 0; bottom: 0; right: 0;
+      width: 55%;
+      display: none;
+      background: radial-gradient(ellipse 80% 70% at 72% 50%, rgba(0,0,0,0.4), transparent 75%);
+    }
+    @media (min-width: 640px) { .bg-overlay-4 { display: block; } }
+
+    .bg-vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.55) 100%);
+    }
+
+    .bg-ambient-dim {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.25);
+      display: none;
+    }
+    .bg-ambient-dim.active { display: block; }
+
+    /* ===== Embers ===== */
+    .embers-container {
+      position: absolute;
+      inset: 0;
+    }
+    .ember {
+      position: absolute;
+      bottom: 0;
+      border-radius: 50%;
+      background: rgba(226,176,106,0.7);
+      filter: blur(0.5px);
+      animation: float-ember linear infinite;
+    }
+
+    /* ===== Header ===== */
+    .header {
+      pointer-events: none;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 1rem 1rem 0;
+      padding-top: max(1rem, env(safe-area-inset-top));
+    }
+    @media (min-width: 640px) {
+      .header { padding: 1.5rem 2rem 0; }
+    }
+
+    .header-om {
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 50%;
+      border: 1px solid rgba(226,176,106,0.3);
+      background: rgba(0,0,0,0.25);
+      font-family: var(--font-serif-dev);
+      font-size: 1.125rem;
+      color: var(--color-amber);
+      backdrop-filter: blur(12px);
+    }
+
+    .header-listeners { pointer-events: auto; display: none; }
+    @media (min-width: 640px) { .header-listeners { display: block; } }
+
+    .header-actions {
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .icon-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(0,0,0,0.2);
+      color: rgba(246,236,221,0.8);
+      backdrop-filter: blur(12px);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+      outline: none;
+    }
+    .icon-btn:hover {
+      background: rgba(0,0,0,0.35);
+      color: var(--color-ivory);
+    }
+    .icon-btn:focus-visible {
+      box-shadow: 0 0 0 2px rgba(226,176,106,0.7);
+    }
+    .icon-btn.active {
+      border-color: rgba(226,176,106,0.5);
+      background: rgba(226,176,106,0.2);
+      color: var(--color-amber);
+    }
+
+    /* ===== Devotional Title ===== */
+    .devotional-title {
+      pointer-events: none;
+      user-select: none;
+      position: fixed;
+      left: 1rem;
+      top: 5rem;
+      z-index: 10;
+      transition: opacity 0.5s;
+    }
+    @media (min-width: 640px) {
+      .devotional-title { left: 2rem; top: 7rem; }
+    }
+    .devotional-title h1 {
+      font-family: var(--font-serif-dev);
+      font-size: clamp(2rem, 5vw, 3.25rem);
+      line-height: 1.15;
+      color: var(--color-ivory);
+      text-shadow: 0 2px 18px rgba(0,0,0,0.55);
+    }
+    .devotional-title p {
+      margin-top: 0.25rem;
+      font-family: var(--font-serif-dev);
+      font-size: clamp(0.95rem, 1.6vw, 1.15rem);
+      font-style: italic;
+      color: rgba(226,176,106,0.9);
+      text-shadow: 0 1px 10px rgba(0,0,0,0.5);
+    }
+
+    /* ===== Current Verse ===== */
+    .current-verse-container {
+      pointer-events: none;
+      position: fixed;
+      inset-inline: 0;
+      bottom: 136px;
+      z-index: 20;
+      padding: 0 1.5rem;
+      text-align: center;
+    }
+    @media (min-width: 640px) {
+      .current-verse-container {
+        inset-inline: auto;
+        right: 6%;
+        top: 50%;
+        bottom: auto;
+        width: min(560px, 42vw);
+        transform: translateY(-50%);
+        padding: 0;
+        text-align: right;
+      }
+    }
+    @media (min-width: 768px) {
+      .current-verse-container { right: 8%; }
+    }
+
+    .current-verse-line {
+      font-family: var(--font-serif-dev);
+      color: var(--color-ivory);
+      text-shadow: 0 2px 16px rgba(0,0,0,0.65);
+      font-size: clamp(1.4rem, 3.4vw, 2.1rem);
+      line-height: 1.6;
+    }
+    .current-verse-container.ambient .current-verse-line {
+      font-size: clamp(1.15rem, 2.6vw, 1.6rem);
+    }
+    .current-verse-container.ambient { opacity: 0.7; }
+
+    /* ===== Verse Subtitle ===== */
+    .verse-subtitle {
+      pointer-events: none;
+      position: fixed;
+      left: 0; right: 0;
+      bottom: 108px;
+      z-index: 20;
+      display: flex;
+      justify-content: center;
+      padding: 0 1rem;
+    }
+    @media (min-width: 640px) {
+      .verse-subtitle { bottom: 118px; }
+    }
+    .verse-subtitle p {
+      font-family: var(--font-ui);
+      font-size: 11px;
+      letter-spacing: 0.025em;
+      color: rgba(246,236,221,0.4);
+    }
+
+    /* ===== Lyrics Panel ===== */
+    .lyrics-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(2px);
+      transition: opacity 0.3s;
+    }
+    .lyrics-overlay.hidden {
+      pointer-events: none;
+      opacity: 0;
+    }
+    .lyrics-overlay.visible { opacity: 1; }
+
+    .lyrics-panel {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      max-height: 78vh;
+      border-radius: 1.5rem 1.5rem 0 0;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(23,16,10,0.9);
+      backdrop-filter: blur(24px);
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+      transition: transform 0.3s ease-out;
+    }
+    @media (min-width: 640px) {
+      .lyrics-panel {
+        left: auto;
+        right: 0;
+        top: 0; bottom: 0;
+        width: 400px;
+        max-height: none;
+        border-radius: 1.5rem 0 0 1.5rem;
+      }
+    }
+    .lyrics-panel.closed {
+      transform: translateY(100%);
+    }
+    @media (min-width: 640px) {
+      .lyrics-panel.closed { transform: translateX(100%); }
+    }
+    .lyrics-panel.open {
+      transform: translateY(0);
+    }
+    @media (min-width: 640px) {
+      .lyrics-panel.open { transform: translateX(0); }
+    }
+
+    .lyrics-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding: 1rem 1.25rem;
+    }
+    .lyrics-header h2 {
+      font-family: var(--font-serif-dev);
+      font-size: 1.125rem;
+      color: var(--color-amber);
+    }
+    .lyrics-close {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: rgba(246,236,221,0.7);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .lyrics-close:hover {
+      background: rgba(255,255,255,0.1);
+      color: var(--color-ivory);
+    }
+    .lyrics-close:focus-visible {
+      box-shadow: 0 0 0 2px rgba(226,176,106,0.7);
+    }
+
+    .lyrics-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem 1.25rem;
+    }
+    .lyrics-body::-webkit-scrollbar { width: 6px; }
+    .lyrics-body::-webkit-scrollbar-track { background: transparent; }
+    .lyrics-body::-webkit-scrollbar-thumb {
+      background: rgba(246,236,221,0.18);
+      border-radius: 999px;
+    }
+
+    .lyrics-verse {
+      margin-bottom: 1rem;
+      scroll-margin-top: 1.5rem;
+    }
+    .lyrics-verse-label {
+      margin-bottom: 0.5rem;
+      font-family: var(--font-ui);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: rgba(201,138,75,0.7);
+    }
+    .lyrics-verse-text {
+      font-family: var(--font-serif-dev);
+      line-height: 1.7;
+      white-space: pre-line;
+      transition: all 0.3s;
+      color: rgba(246,236,221,0.45);
+      font-size: 17px;
+    }
+    .lyrics-verse-text.current {
+      color: var(--color-ivory);
+      font-size: 19px;
+      text-shadow: 0 0 14px rgba(226,176,106,0.45);
+    }
+
+    /* ===== Playback Mode Menu ===== */
+    .mode-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      background: rgba(0,0,0,0.4);
+      transition: opacity 0.3s;
+    }
+    .mode-overlay.hidden { pointer-events: none; opacity: 0; }
+    .mode-overlay.visible { opacity: 1; }
+
+    .mode-menu {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 50;
+      border-radius: 1.5rem 1.5rem 0 0;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(23,16,10,0.95);
+      backdrop-filter: blur(24px);
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+      padding: 0.5rem;
+      transition: all 0.25s ease-out;
+    }
+    @media (min-width: 640px) {
+      .mode-menu {
+        left: auto;
+        right: 2rem;
+        top: 4.5rem;
+        bottom: auto;
+        width: 18rem;
+        border-radius: 1rem;
+      }
+    }
+    .mode-menu.hidden {
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(1rem);
+    }
+    .mode-menu.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .mode-menu-label {
+      padding: 0.75rem 1rem 0.5rem;
+      font-family: var(--font-ui);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: rgba(246,236,221,0.5);
+    }
+
+    .mode-menu-list {
+      padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+    }
+
+    .mode-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: none;
+      border-radius: 0.75rem;
+      background: transparent;
+      color: rgba(246,236,221,0.8);
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      outline: none;
+    }
+    .mode-option:hover { background: rgba(255,255,255,0.05); }
+    .mode-option:focus-visible {
+      box-shadow: 0 0 0 2px rgba(226,176,106,0.7);
+    }
+    .mode-option.active {
+      background: rgba(226,176,106,0.15);
+      color: var(--color-amber);
+    }
+    .mode-option .mode-label {
+      font-family: var(--font-serif-dev);
+      font-size: 1rem;
+    }
+    .mode-option .mode-sub {
+      font-family: var(--font-ui);
+      font-size: 0.75rem;
+      color: rgba(246,236,221,0.4);
+    }
+
+    /* ===== Music Player ===== */
+    .music-player {
+      position: fixed;
+      left: 0.75rem;
+      right: 0.75rem;
+      bottom: max(0.9rem, env(safe-area-inset-bottom));
+      z-index: 30;
+      margin: 0 auto;
+      max-width: 680px;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(20,12,8,0.55);
+      padding: 0.625rem 0.75rem;
+      box-shadow: 0 20px 60px -15px rgba(0,0,0,0.7);
+      backdrop-filter: blur(20px);
+      transition: opacity 0.5s;
+    }
+    @media (min-width: 640px) {
+      .music-player { gap: 1rem; padding: 0.75rem 1rem; }
+    }
+    .music-player.ambient { opacity: 0.7; }
+    .music-player.ambient:hover { opacity: 1; }
+
+    .player-thumb {
+      position: relative;
+      width: 3rem;
+      height: 3rem;
+      flex-shrink: 0;
+      overflow: hidden;
+      border-radius: 0.75rem;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(0,0,0,0.4);
+    }
+    @media (min-width: 640px) {
+      .player-thumb { width: 3.5rem; height: 3.5rem; }
+    }
+    #yt-player-container {
+      width: 100%;
+      height: 100%;
+    }
+
+    .player-center {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .player-title-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+    .player-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-family: var(--font-serif-dev);
+      font-size: 15px;
+      color: var(--color-ivory);
+    }
+    @media (min-width: 640px) {
+      .player-title { font-size: 1rem; }
+    }
+
+    .repeat-counter {
+      font-family: var(--font-ui);
+      font-size: 0.75rem;
+      color: rgba(226,176,106,0.9);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .player-progress-row {
+      margin-top: 0.375rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .time-label {
+      width: 2.25rem;
+      flex-shrink: 0;
+      font-family: var(--font-ui);
+      font-size: 11px;
+      color: rgba(246,236,221,0.5);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ===== Range Inputs ===== */
+    input[type="range"].chalisa-range {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      border-radius: 999px;
+      background: linear-gradient(
+        to right,
+        var(--color-amber) 0%,
+        var(--color-amber) var(--range-progress, 0%),
+        rgba(246,236,221,0.18) var(--range-progress, 0%),
+        rgba(246,236,221,0.18) 100%
+      );
+      cursor: pointer;
+      outline: none;
+    }
+    input[type="range"].chalisa-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--color-amber);
+      box-shadow: 0 0 0 3px rgba(226,176,106,0.25);
+      transition: transform 150ms ease;
+    }
+    input[type="range"].chalisa-range::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+    input[type="range"].chalisa-range::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--color-amber);
+      border: none;
+    }
+    input[type="range"].chalisa-range::-moz-range-progress {
+      background: var(--color-amber);
+      height: 4px;
+      border-radius: 999px;
+    }
+
+    .player-controls {
+      display: flex;
+      flex-shrink: 0;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    @media (min-width: 640px) {
+      .player-controls { gap: 0.5rem; }
+    }
+
+    .ctrl-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.25rem;
+      height: 2.25rem;
+      border: none;
+      border-radius: 50%;
+      background: transparent;
+      color: rgba(246,236,221,0.7);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      outline: none;
+    }
+    .ctrl-btn:hover {
+      background: rgba(255,255,255,0.1);
+      color: var(--color-ivory);
+    }
+    .ctrl-btn:focus-visible {
+      box-shadow: 0 0 0 2px rgba(226,176,106,0.7);
+    }
+    .ctrl-btn:disabled { opacity: 0.3; cursor: default; }
+
+    .ctrl-btn.play-btn {
+      width: 2.75rem;
+      height: 2.75rem;
+      background: var(--color-amber);
+      color: var(--color-ink);
+      box-shadow: 0 6px 20px -4px rgba(226,176,106,0.65);
+      transition: transform 0.2s;
+    }
+    .ctrl-btn.play-btn:hover {
+      transform: scale(1.05);
+      background: var(--color-amber);
+    }
+    .ctrl-btn.play-btn:disabled {
+      opacity: 0.4;
+      transform: none;
+    }
+
+    /* ===== Live Listeners ===== */
+    .live-listeners {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(0,0,0,0.2);
+      padding: 0.375rem 0.75rem;
+      backdrop-filter: blur(12px);
+    }
+    .live-dot-wrapper {
+      position: relative;
+      display: flex;
+      width: 0.5rem;
+      height: 0.5rem;
+    }
+    .live-dot-pulse {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: rgba(52,211,153,0.8);
+      animation: glow-pulse 3.2s ease-in-out infinite;
+    }
+    .live-dot-core {
+      position: relative;
+      display: inline-flex;
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background: rgb(52,211,153);
+    }
+    .live-text {
+      font-family: var(--font-sans-dev);
+      font-size: 13px;
+      letter-spacing: 0.025em;
+      color: rgba(246,236,221,0.85);
+    }
+
+    /* ===== Cursor Trail ===== */
+    .ram-pointer {
+      position: fixed;
+      left: 0;
+      top: 0;
+      pointer-events: none;
+      user-select: none;
+      z-index: 999999;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--color-amber);
+      font-family: var(--font-sans-dev);
+      white-space: nowrap;
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.85) rotate(0deg);
+      animation: ram-float 1.2s ease-out forwards;
+      will-change: transform, opacity;
+    }
+
+    /* ===== Keyframes ===== */
+    @keyframes slow-zoom {
+      from { transform: scale(1); }
+      to { transform: scale(1.045); }
+    }
+    @keyframes verse-in {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes verse-out {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(-10px); }
+    }
+    @keyframes float-ember {
+      0% { transform: translateY(0) translateX(0); opacity: 0; }
+      10% { opacity: 0.55; }
+      90% { opacity: 0.35; }
+      100% { transform: translateY(-90vh) translateX(12px); opacity: 0; }
+    }
+    @keyframes ram-float {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.75) rotate(0deg); }
+      15% { opacity: 0.95; }
+      100% { opacity: 0; transform: translate(calc(-50% + var(--x)), calc(-50% - var(--y))) scale(1.35) rotate(var(--rotate)); }
+    }
+    @keyframes glow-pulse {
+      0%, 100% { opacity: 0.55; }
+      50% { opacity: 0.9; }
+    }
+
+    .animate-verse-in { animation: verse-in 450ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+    .animate-verse-out { animation: verse-out 350ms cubic-bezier(0.4, 0, 1, 1) both; }
+
+    /* ===== Reduced Motion ===== */
+    @media (prefers-reduced-motion: reduce) {
+      .bg-image,
+      .ember,
+      .live-dot-pulse,
+      .ram-pointer { animation: none !important; }
+      .animate-verse-in,
+      .animate-verse-out { animation-duration: 1ms !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="app" class="app-container"></div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ============================================================
+  // CONFIG
+  // ============================================================
+  var HANUMAN_CHALISA_VIDEO_ID = "BLlTFapgvOo";
+  var BACKGROUND_IMAGE_URL = "hanuman-bg.jpg";
+  var MOCK_LIVE_LISTENERS = 1284;
+  var YT_CONTAINER_ID = "yt-player-container";
+  var PLACEHOLDER_ID = "REPLACE_WITH_YOUTUBE_VIDEO_ID";
+
+  // ============================================================
+  // LYRICS DATA
+  // ============================================================
+  var RAW_VERSES = [
+    { type: "doha", start: 0, text: "श्रीगुरु चरन सरोज रज,\nनिज मनु मुकुरु सुधारि।" },
+    { type: "doha", start: 6, text: "बरनऊँ रघुबर बिमल जसु,\nजो दायकु फल चारि॥" },
+    { type: "doha", start: 11, text: "बुद्धिहीन तनु जानिके,\nसुमिरौं पवन-कुमार।" },
+    { type: "doha", start: 16, text: "बल बुधि बिद्या देहु मोहिं,\nहरहु कलेश बिकार॥" },
+    { type: "chaupai", start: 21, text: "जय हनुमान ज्ञान गुन सागर।\nजय कपीस तिहुं लोक उजागर॥" },
+    { type: "chaupai", start: 26, text: "राम दूत अतुलित बल धामा।\nअंजनि-पुत्र पवनसुत नामा॥" },
+    { type: "chaupai", start: 31, text: "महाबीर बिक्रम बजरंगी।\nकुमति निवार सुमति के संगी॥" },
+    { type: "chaupai", start: 35, text: "कंचन बरन बिराज सुबेसा।\nकानन कुंडल कुंचित केसा॥" },
+    { type: "chaupai", start: 40, text: "हाथ बज्र औ ध्वजा बिराजै।\nकांधे मूंज जनेऊ साजै॥" },
+    { type: "chaupai", start: 45, text: "संकर सुवन केसरीनंदन।\nतेज प्रताप महा जग बंदन॥" },
+    { type: "chaupai", start: 51, text: "बिद्यावान गुनी अति चातुर।\nराम काज करिबे को आतुर॥" },
+    { type: "chaupai", start: 59, text: "प्रभु चरित्र सुनिबे को रसिया।\nराम लखन सीता मन बसिया॥" },
+    { type: "chaupai", start: 63, text: "सूक्ष्म रूप धरि सियहिं दिखावा।\nबिकट रूप धरि लंक जरावा॥" },
+    { type: "chaupai", start: 67, text: "भीम रूप धरि असुर संहारे।\nरामचंद्र के काज संवारे॥" },
+    { type: "chaupai", start: 73, text: "लाय सजीवन लखन जियाये।\nश्रीरघुबीर हरषि उर लाये॥" },
+    { type: "chaupai", start: 77, text: "रघुपति कीन्ही बहुत बड़ाई।\nतुम मम प्रिय भरतहि सम भाई॥" },
+    { type: "chaupai", start: 82, text: "सहस बदन तुम्हरो जस गावैं।\nअस कहि श्रीपति कंठ लगावैं॥" },
+    { type: "chaupai", start: 87, text: "सनकादिक ब्रह्मादि मुनीसा।\nनारद सारद सहित अहीसा॥" },
+    { type: "chaupai", start: 93, text: "जम कुबेर दिगपाल जहां ते।\nकबि कोबिद कहि सके कहां ते॥" },
+    { type: "chaupai", start: 99, text: "तुम उपकार सुग्रीवहिं कीन्हा।\nराम मिलाय राज पद दीन्हा॥" },
+    { type: "chaupai", start: 102, text: "तुम्हरो मंत्र बिभीषन माना।\nलंकेस्वर भए सब जग जाना॥" },
+    { type: "chaupai", start: 107, text: "जुग सहस्र जोजन पर भानू।\nलील्यो ताहि मधुर फल जानू॥" },
+    { type: "chaupai", start: 112, text: "प्रभु मुद्रिका मेलि मुख माहीं।\nजलधि लांघि गये अचरज नाहीं॥" },
+    { type: "chaupai", start: 119, text: "दुर्गम काज जगत के जेते।\nसुगम अनुग्रह तुम्हरे तेते॥" },
+    { type: "chaupai", start: 124, text: "राम दुआरे तुम रखवारे।\nहोत न आज्ञा बिनु पैसारे॥" },
+    { type: "chaupai", start: 127, text: "सब सुख लहै तुम्हारी सरना।\nतुम रच्छक काहू को डर ना॥" },
+    { type: "chaupai", start: 133, text: "आपन तेज सम्हारो आपे।\nतीनों लोक हांक तें कांपे॥" },
+    { type: "chaupai", start: 137, text: "भूत पिसाच निकट नहिं आवै।\nमहाबीर जब नाम सुनावै॥" },
+    { type: "chaupai", start: 143, text: "नासै रोग हरै सब पीरा।\nजपत निरंतर हनुमत बीरा॥" },
+    { type: "chaupai", start: 147, text: "संकट तें हनुमान छुड़ावै।\nमन क्रम बचन ध्यान जो लावै॥" },
+    { type: "chaupai", start: 153, text: "सब पर राम तपस्वी राजा।\nतिन के काज सकल तुम साजा॥" },
+    { type: "chaupai", start: 157, text: "और मनोरथ जो कोई लावै।\nसोइ अमित जीवन फल पावै॥" },
+    { type: "chaupai", start: 164, text: "चारों जुग परताप तुम्हारा।\nहै परसिद्ध जगत उजियारा॥" },
+    { type: "chaupai", start: 169, text: "साधु संत के तुम रखवारे।\nअसुर निकंदन राम दुलारे॥" },
+    { type: "chaupai", start: 173, text: "अष्ट सिद्धि नौ निधि के दाता।\nअस बर दीन जानकी माता॥" },
+    { type: "chaupai", start: 178, text: "राम रसायन तुम्हरे पासा।\nसदा रहो रघुपति के दासा॥" },
+    { type: "chaupai", start: 183, text: "तुम्हरे भजन राम को पावै।\nजनम जनम के दुख बिसरावै॥" },
+    { type: "chaupai", start: 188, text: "अंतकाल रघुबर पुर जाई।\nजहां जन्म हरि-भक्त कहाई॥" },
+    { type: "chaupai", start: 191, text: "और देवता चित्त न धरई।\nहनुमत सेइ सर्ब सुख करई॥" },
+    { type: "chaupai", start: 199, text: "संकट कटै मिटै सब पीरा।\nजो सुमिरै हनुमत बलबीरा॥" },
+    { type: "chaupai", start: 205, text: "जै जै जै हनुमान गोसाईं।\nकृपा करहु गुरुदेव की नाईं॥" },
+    { type: "chaupai", start: 208, text: "जो सत बार पाठ कर कोई।\nछूटहि बंदि महा सुख होई॥" },
+    { type: "chaupai", start: 214, text: "जो यह पढ़ै हनुमान चालीसा।\nहोय सिद्धि साखी गौरीसा॥" },
+    { type: "chaupai", start: 218, text: "तुलसीदास सदा हरि चेरा।\nकीजै नाथ हृदय मंह डेरा॥" },
+    { type: "doha", start: 224, text: "पवनतनय संकट हरन,\nमंगल मूरति रूप।" },
+    { type: "doha", start: 228, text: "राम लखन सीता सहित,\nहृदय बसहु सुर भूप॥" },
+    { type: "mantra", start: 233, text: "श्री राम जय राम,\nजय जय राम॥" },
+    { type: "mantra", start: 240, text: "श्री राम जय राम,\nजय जय राम॥" },
+    { type: "mantra", start: 247, text: "श्री राम जय राम,\nजय जय राम॥" }
+  ];
+  var FINAL_END_SECONDS = 258;
+
+  var chaupaiCount = 0;
+  var hanumanChalisaLyrics = RAW_VERSES.map(function(verse, index) {
+    if (verse.type === "chaupai") chaupaiCount += 1;
+    var next = RAW_VERSES[index + 1];
+    return {
+      id: index + 1,
+      type: verse.type,
+      number: verse.type === "chaupai" ? chaupaiCount : null,
+      start: verse.start,
+      end: next ? next.start : FINAL_END_SECONDS,
+      text: verse.text
+    };
+  });
+
+  // ============================================================
+  // PLAYBACK MODES
+  // ============================================================
+  var PLAYBACK_MODES = [
+    { id: "normal", label: "सामान्य", sub: "Normal · once", target: 1, showCounter: false },
+    { id: "repeat", label: "रिपीट", sub: "Repeat continuously", target: Infinity, showCounter: false },
+    { id: "eleven", label: "11 बार", sub: "11 times", target: 11, showCounter: true },
+    { id: "twentyOne", label: "21 बार", sub: "21 times", target: 21, showCounter: true },
+    { id: "oneOEight", label: "108 बार", sub: "108 times", target: 108, showCounter: true },
+    { id: "peaceful", label: "शांति लूप", sub: "Peaceful loop, no count shown", target: Infinity, showCounter: false }
+  ];
+
+  function getPlaybackMode(id) {
+    return PLAYBACK_MODES.find(function(m) { return m.id === id; }) || PLAYBACK_MODES[0];
+  }
+
+  // ============================================================
+  // UTILITIES
+  // ============================================================
+  function formatTime(seconds) {
+    if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
+    var total = Math.floor(seconds);
+    var mins = Math.floor(total / 60);
+    var secs = total % 60;
+    return mins + ":" + (secs < 10 ? "0" : "") + secs;
+  }
+
+  function findVerseIndexAtTime(lyrics, time) {
+    if (!lyrics.length) return -1;
+    var lo = 0;
+    var hi = lyrics.length - 1;
+    while (lo <= hi) {
+      var mid = (lo + hi) >> 1;
+      var verse = lyrics[mid];
+      if (time < verse.start) { hi = mid - 1; }
+      else if (time >= verse.end) { lo = mid + 1; }
+      else { return mid; }
+    }
+    if (time >= lyrics[lyrics.length - 1].end) return lyrics.length - 1;
+    return -1;
+  }
+
+  // ============================================================
+  // SVG ICONS
+  // ============================================================
+  var ICONS = {
+    play: '<svg viewBox="0 0 24 24" width="20" height="20"><path d="M7 4.5v15l13-7.5-13-7.5z" fill="currentColor" stroke="none"/></svg>',
+    pause: '<svg viewBox="0 0 24 24" width="20" height="20"><rect x="6" y="4.5" width="4.5" height="15" rx="1" fill="currentColor"/><rect x="13.5" y="4.5" width="4.5" height="15" rx="1" fill="currentColor"/></svg>',
+    replay: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 1 2.6 5.9"/><path d="M4 17v-5h5"/></svg>',
+    volume: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>',
+    mute: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 9l5 6M21 9l-5 6"/></svg>',
+    book: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H12v16H5.5A1.5 1.5 0 0 1 4 18.5v-13z"/><path d="M20 5.5c0-.8-.7-1.5-1.5-1.5H12v16h6.5a1.5 1.5 0 0 0 1.5-1.5v-13z"/></svg>',
+    list: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="6" r="1" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="5" cy="18" r="1" fill="currentColor" stroke="none"/><path d="M9 6h11M9 12h11M9 18h11"/></svg>',
+    expand: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"/></svg>',
+    compress: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h5V4M20 9h-5V4M4 15h5v5M20 15h-5v5"/></svg>',
+    close: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+    moon: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>'
+  };
+
+  // ============================================================
+  // STATE
+  // ============================================================
+  var state = {
+    playbackModeId: "normal",
+    repeatCount: 1,
+    lyricsOpen: false,
+    modeMenuOpen: false,
+    ambientMode: false,
+    isFullscreen: false,
+    currentTime: 0,
+    duration: 0,
+    isPlaying: false,
+    isReady: false,
+    volume: 80,
+    isMuted: false,
+    isConfigured: true,
+    currentVerseIndex: -1,
+    displayedVerse: null,
+    animClass: "animate-verse-in",
+    liveListeners: MOCK_LIVE_LISTENERS
+  };
+
+  // ============================================================
+  // DOM REFERENCES
+  // ============================================================
+  var appEl = document.getElementById("app");
+  var ytPlayer = null;
+  var pollInterval = null;
+  var verseTimeout = null;
+  var lastParticleTime = 0;
+  var youTubeApiPromise = null;
+
+  // ============================================================
+  // BUILD DOM
+  // ============================================================
+  function buildDOM() {
+    var embersHtml = '';
+    for (var i = 0; i < 16; i++) {
+      var seed = i * 137.5;
+      var left = (seed % 100).toFixed(1);
+      var size = 2 + (i % 3);
+      var duration = 14 + (i % 7) * 2.5;
+      var delay = -(i * 2.3);
+      embersHtml += '<span class="ember" style="left:' + left + '%;width:' + size + 'px;height:' + size + 'px;animation-duration:' + duration + 's;animation-delay:' + delay + 's"></span>';
+    }
+
+    var modeOptionsHtml = PLAYBACK_MODES.map(function(mode) {
+      var active = mode.id === state.playbackModeId;
+      return '<button class="mode-option' + (active ? ' active' : '') + '" data-mode-id="' + mode.id + '">' +
+        '<span class="mode-label">' + mode.label + '</span>' +
+        '<span class="mode-sub">' + mode.sub + '</span>' +
+      '</button>';
+    }).join('');
+
+    var lyricsHtml = hanumanChalisaLyrics.map(function(verse, index) {
+      var label = '';
+      if (verse.type === "chaupai" && verse.number === 1) {
+        label = '<p class="lyrics-verse-label">चौपाई</p>';
+      }
+      return '<div class="lyrics-verse" data-verse-index="' + index + '">' +
+        label +
+        '<p class="lyrics-verse-text" data-verse-text="' + index + '">' + verse.text + '</p>' +
+      '</div>';
+    }).join('');
+
+    appEl.innerHTML = [
+      // Background Scene
+      '<div class="bg-scene" aria-hidden="true">',
+        '<div class="bg-image hanuman-bg-photo"></div>',
+        '<div class="bg-overlay-1"></div>',
+        '<div class="bg-overlay-2"></div>',
+        '<div class="bg-overlay-3"></div>',
+        '<div class="bg-overlay-4"></div>',
+        '<div class="bg-vignette"></div>',
+        '<div class="bg-ambient-dim" id="bg-ambient-dim"></div>',
+        '<div class="embers-container">' + embersHtml + '</div>',
+      '</div>',
+
+      // Header
+      '<header class="header">',
+        '<div class="header-om">ॐ</div>',
+        '<div class="header-listeners">',
+          '<div class="live-listeners">',
+            '<span class="live-dot-wrapper">',
+              '<span class="live-dot-pulse"></span>',
+              '<span class="live-dot-core"></span>',
+            '</span>',
+            '<span class="live-text" id="live-listeners-text">' + MOCK_LIVE_LISTENERS.toLocaleString("hi-IN") + ' भक्त सुन रहे हैं</span>',
+          '</div>',
+        '</div>',
+        '<div class="header-actions">',
+          '<button class="icon-btn" id="btn-lyrics" aria-label="Lyrics">' + ICONS.book + '</button>',
+          '<button class="icon-btn" id="btn-mode" aria-label="Playback mode">' + ICONS.list + '</button>',
+          '<button class="icon-btn" id="btn-ambient" aria-label="Ambient mode">' + ICONS.moon + '</button>',
+          '<button class="icon-btn" id="btn-fullscreen" aria-label="Enter fullscreen">' + ICONS.expand + '</button>',
+        '</div>',
+      '</header>',
+
+      // Devotional Title
+      '<div class="devotional-title" id="devotional-title">',
+        '<h1>हनुमान चालीसा</h1>',
+        '<p>श्री हनुमते नमः</p>',
+      '</div>',
+
+      // Current Verse
+      '<div class="current-verse-container" id="current-verse-container">',
+        '<div id="current-verse-inner"></div>',
+      '</div>',
+
+      // Verse Subtitle
+      '<div class="verse-subtitle" id="verse-subtitle" style="display:none">',
+        '<p id="verse-subtitle-text"></p>',
+      '</div>',
+
+      // Lyrics Panel
+      '<div class="lyrics-overlay hidden" id="lyrics-overlay" aria-hidden="true"></div>',
+      '<aside class="lyrics-panel closed" id="lyrics-panel" role="dialog" aria-modal="true" aria-label="संपूर्ण हनुमान चालीसा">',
+        '<div class="lyrics-header">',
+          '<h2>हनुमान चालीसा</h2>',
+          '<button class="lyrics-close" id="btn-close-lyrics" aria-label="Close lyrics">' + ICONS.close + '</button>',
+        '</div>',
+        '<div class="lyrics-body" id="lyrics-body">' + lyricsHtml + '</div>',
+      '</aside>',
+
+      // Playback Mode Menu
+      '<div class="mode-overlay hidden" id="mode-overlay" aria-hidden="true"></div>',
+      '<div class="mode-menu hidden" id="mode-menu" role="dialog" aria-modal="true" aria-label="सुनने की विधि चुनें">',
+        '<p class="mode-menu-label">Listening Mode</p>',
+        '<div class="mode-menu-list" id="mode-menu-list">' + modeOptionsHtml + '</div>',
+      '</div>',
+
+      // Music Player
+      '<div class="music-player" id="music-player">',
+        '<div class="player-thumb">',
+          '<div id="' + YT_CONTAINER_ID + '"></div>',
+        '</div>',
+        '<div class="player-center">',
+          '<div class="player-title-row">',
+            '<p class="player-title">श्री हनुमान चालीसा</p>',
+            '<span class="repeat-counter" id="repeat-counter" style="display:none"></span>',
+          '</div>',
+          '<div class="player-progress-row">',
+            '<span class="time-label" id="time-current">0:00</span>',
+            '<input type="range" class="chalisa-range" id="seek-range" min="0" max="0" step="0.1" value="0" aria-label="Seek" style="width:100%">',
+            '<span class="time-label" id="time-total">0:00</span>',
+          '</div>',
+        '</div>',
+        '<div class="player-controls">',
+          '<button class="ctrl-btn" id="btn-restart" aria-label="Restart from beginning">' + ICONS.replay + '</button>',
+          '<button class="ctrl-btn play-btn" id="btn-play" aria-label="Play">' + ICONS.play + '</button>',
+          '<button class="ctrl-btn" id="btn-player-mode" aria-label="Change listening mode">' + ICONS.list + '</button>',
+          '<button class="ctrl-btn" id="btn-mute" aria-label="Mute" style="display:none">' + ICONS.volume + '</button>',
+          '<input type="range" class="chalisa-range" id="volume-range" min="0" max="100" value="80" aria-label="Volume" style="width:4rem;display:none">',
+        '</div>',
+      '</div>'
+    ].join('');
+  }
+
+  // ============================================================
+  // YOUTUBE PLAYER
+  // ============================================================
+  function loadYouTubeIframeAPI() {
+    if (youTubeApiPromise) return youTubeApiPromise;
+    youTubeApiPromise = new Promise(function(resolve) {
+      if (window.YT && window.YT.Player) { resolve(window.YT); return; }
+      var previous = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = function() {
+        if (previous) previous();
+        resolve(window.YT);
+      };
+      var tag = document.createElement("script");
+      tag.src = "https://www.youtube.com/iframe_api";
+      document.head.appendChild(tag);
+    });
+    return youTubeApiPromise;
+  }
+
+  function initYouTubePlayer() {
+    if (!state.isConfigured) return;
+    loadYouTubeIframeAPI().then(function(YT) {
+      ytPlayer = new YT.Player(YT_CONTAINER_ID, {
+        videoId: HANUMAN_CHALISA_VIDEO_ID,
+        playerVars: {
+          autoplay: 0, controls: 0, disablekb: 1, modestbranding: 1,
+          rel: 0, playsinline: 1, fs: 0, iv_load_policy: 3
+        },
+        events: {
+          onReady: function(event) {
+            event.target.setVolume(state.volume);
+            state.duration = event.target.getDuration();
+            state.isReady = true;
+            updatePlayerUI();
+          },
+          onStateChange: function(event) {
+            var PlayerState = window.YT.PlayerState;
+            if (event.data === PlayerState.PLAYING) {
+              state.isPlaying = true;
+              state.duration = event.target.getDuration();
+              startPolling();
+              updatePlayerUI();
+            } else if (event.data === PlayerState.PAUSED) {
+              state.isPlaying = false;
+              stopPolling();
+              updatePlayerUI();
+            } else if (event.data === PlayerState.ENDED) {
+              state.isPlaying = false;
+              stopPolling();
+              updatePlayerUI();
+              handleEnded();
+            }
+          }
+        }
+      });
+    });
+  }
+
+  function startPolling() {
+    stopPolling();
+    pollInterval = setInterval(function() {
+      if (ytPlayer && ytPlayer.getCurrentTime) {
+        var t = ytPlayer.getCurrentTime();
+        if (typeof t === "number") {
+          state.currentTime = t;
+          updateCurrentVerse();
+          updateProgressUI();
+        }
+      }
+    }, 200);
+  }
+
+  function stopPolling() {
+    if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+  }
+
+  function handleEnded() {
+    var mode = getPlaybackMode(state.playbackModeId);
+    if (mode.target <= 1) return;
+    var next = state.repeatCount + 1;
+    if (next <= mode.target) {
+      state.repeatCount = next;
+      if (ytPlayer && ytPlayer.seekTo) {
+        ytPlayer.seekTo(0, true);
+        ytPlayer.playVideo();
+      }
+      updateRepeatCounter();
+    }
+  }
+
+  // ============================================================
+  // UI UPDATES
+  // ============================================================
+  function updatePlayerUI() {
+    var playBtn = document.getElementById("btn-play");
+    if (playBtn) {
+      playBtn.innerHTML = state.isPlaying ? ICONS.pause : ICONS.play;
+      playBtn.setAttribute("aria-label", state.isPlaying ? "Pause" : "Play");
+    }
+    var muteBtn = document.getElementById("btn-mute");
+    if (muteBtn) {
+      muteBtn.innerHTML = (state.isMuted || state.volume === 0) ? ICONS.mute : ICONS.volume;
+      muteBtn.setAttribute("aria-label", (state.isMuted || state.volume === 0) ? "Unmute" : "Mute");
+    }
+    var totalEl = document.getElementById("time-total");
+    if (totalEl) totalEl.textContent = formatTime(state.duration);
+  }
+
+  function updateProgressUI() {
+    var currentEl = document.getElementById("time-current");
+    var seekEl = document.getElementById("seek-range");
+    if (currentEl) currentEl.textContent = formatTime(state.currentTime);
+    if (seekEl) {
+      seekEl.max = state.duration || 0;
+      seekEl.value = Math.min(state.currentTime, state.duration || 0);
+      var progress = state.duration > 0 ? (state.currentTime / state.duration) * 100 : 0;
+      seekEl.style.setProperty("--range-progress", progress + "%");
+    }
+  }
+
+  function updateRepeatCounter() {
+    var el = document.getElementById("repeat-counter");
+    if (!el) return;
+    var mode = getPlaybackMode(state.playbackModeId);
+    if (!mode.showCounter) { el.style.display = "none"; return; }
+    el.style.display = "inline";
+    el.textContent = Math.min(state.repeatCount, mode.target) + " / " + mode.target;
+  }
+
+  function updateCurrentVerse() {
+    var idx = findVerseIndexAtTime(hanumanChalisaLyrics, state.currentTime);
+    if (idx === state.currentVerseIndex) return;
+    state.currentVerseIndex = idx;
+    var verse = idx >= 0 ? hanumanChalisaLyrics[idx] : null;
+
+    // Crossfade logic
+    var inner = document.getElementById("current-verse-inner");
+    var subtitle = document.getElementById("verse-subtitle");
+    var subtitleText = document.getElementById("verse-subtitle-text");
+
+    if (!verse) {
+      if (inner) inner.innerHTML = "";
+      if (subtitle) subtitle.style.display = "none";
+      return;
+    }
+
+    if (subtitle) subtitle.style.display = "flex";
+    if (subtitleText) {
+      var label = "हनुमान चालीसा ";
+      if (verse.type === "chaupai") {
+        label += "• चौपाई " + String(verse.number).padStart(2, "0");
+      } else if (verse.type === "doha") {
+        label += "• दोहा";
+      } else {
+        label += "• जय श्री राम";
+      }
+      subtitleText.textContent = label;
+    }
+
+    if (!inner) return;
+
+    // If same verse, skip
+    if (state.displayedVerse && state.displayedVerse.id === verse.id) return;
+
+    inner.className = "animate-verse-out";
+    if (verseTimeout) clearTimeout(verseTimeout);
+    verseTimeout = setTimeout(function() {
+      state.displayedVerse = verse;
+      var lines = verse.text.split("\n");
+      inner.innerHTML = lines.map(function(line) {
+        return '<p class="current-verse-line">' + line + '</p>';
+      }).join("");
+      inner.className = "animate-verse-in";
+    }, 320);
+  }
+
+  function updateLyricsHighlight() {
+    var current = state.currentVerseIndex;
+    var verses = document.querySelectorAll(".lyrics-verse-text");
+    verses.forEach(function(el, i) {
+      if (i === current) el.classList.add("current");
+      else el.classList.remove("current");
+    });
+    // Auto-scroll
+    if (state.lyricsOpen && current >= 0) {
+      var target = document.querySelector('.lyrics-verse[data-verse-index="' + current + '"]');
+      if (target) target.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }
+
+  function updateAmbientUI() {
+    var dim = document.getElementById("bg-ambient-dim");
+    if (dim) dim.classList.toggle("active", state.ambientMode);
+    var player = document.getElementById("music-player");
+    if (player) player.classList.toggle("ambient", state.ambientMode);
+    var title = document.getElementById("devotional-title");
+    if (title) title.style.opacity = state.ambientMode ? "0.6" : "1";
+    var verseContainer = document.getElementById("current-verse-container");
+    if (verseContainer) verseContainer.classList.toggle("ambient", state.ambientMode);
+    var ambientBtn = document.getElementById("btn-ambient");
+    if (ambientBtn) ambientBtn.classList.toggle("active", state.ambientMode);
+  }
+
+  function updateFullscreenUI() {
+    var btn = document.getElementById("btn-fullscreen");
+    if (btn) {
+      btn.innerHTML = state.isFullscreen ? ICONS.compress : ICONS.expand;
+      btn.setAttribute("aria-label", state.isFullscreen ? "Exit fullscreen" : "Enter fullscreen");
+      btn.classList.toggle("active", state.isFullscreen);
+    }
+  }
+
+  function updateModeMenuUI() {
+    var menu = document.getElementById("mode-menu");
+    var overlay = document.getElementById("mode-overlay");
+    if (menu) {
+      menu.classList.toggle("visible", state.modeMenuOpen);
+      menu.classList.toggle("hidden", !state.modeMenuOpen);
+    }
+    if (overlay) {
+      overlay.classList.toggle("visible", state.modeMenuOpen);
+      overlay.classList.toggle("hidden", !state.modeMenuOpen);
+    }
+    // Update active option
+    document.querySelectorAll(".mode-option").forEach(function(btn) {
+      btn.classList.toggle("active", btn.getAttribute("data-mode-id") === state.playbackModeId);
+    });
+    updateRepeatCounter();
+  }
+
+  function updateLyricsPanelUI() {
+    var panel = document.getElementById("lyrics-panel");
+    var overlay = document.getElementById("lyrics-overlay");
+    if (panel) {
+      panel.classList.toggle("open", state.lyricsOpen);
+      panel.classList.toggle("closed", !state.lyricsOpen);
+    }
+    if (overlay) {
+      overlay.classList.toggle("visible", state.lyricsOpen);
+      overlay.classList.toggle("hidden", !state.lyricsOpen);
+    }
+    if (state.lyricsOpen) updateLyricsHighlight();
+  }
+
+  // ============================================================
+  // EVENT HANDLERS
+  // ============================================================
+  function togglePlay() {
+    if (!ytPlayer) return;
+    if (state.isPlaying) ytPlayer.pauseVideo();
+    else ytPlayer.playVideo();
+  }
+
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen && document.exitFullscreen();
+    }
+  }
+
+  function seekTo(seconds) {
+    if (ytPlayer && ytPlayer.seekTo) ytPlayer.seekTo(seconds, true);
+    state.currentTime = seconds;
+    updateProgressUI();
+    updateCurrentVerse();
+  }
+
+  function restartPlayback() {
+    if (ytPlayer && ytPlayer.seekTo) {
+      ytPlayer.seekTo(0, true);
+      ytPlayer.playVideo();
+    }
+  }
+
+  function setVolume(value) {
+    state.volume = value;
+    if (ytPlayer && ytPlayer.setVolume) ytPlayer.setVolume(value);
+    if (value === 0) {
+      state.isMuted = true;
+      if (ytPlayer && ytPlayer.mute) ytPlayer.mute();
+    } else if (state.isMuted) {
+      state.isMuted = false;
+      if (ytPlayer && ytPlayer.unMute) ytPlayer.unMute();
+    }
+    var volEl = document.getElementById("volume-range");
+    if (volEl) {
+      volEl.value = state.isMuted ? 0 : state.volume;
+      volEl.style.setProperty("--range-progress", (state.isMuted ? 0 : state.volume) + "%");
+    }
+    updatePlayerUI();
+  }
+
+  function toggleMute() {
+    if (state.isMuted) {
+      if (ytPlayer && ytPlayer.unMute) ytPlayer.unMute();
+      state.isMuted = false;
+    } else {
+      if (ytPlayer && ytPlayer.mute) ytPlayer.mute();
+      state.isMuted = true;
+    }
+    updatePlayerUI();
+    var volEl = document.getElementById("volume-range");
+    if (volEl) {
+      volEl.value = state.isMuted ? 0 : state.volume;
+      volEl.style.setProperty("--range-progress", (state.isMuted ? 0 : state.volume) + "%");
+    }
+  }
+
+  function selectMode(id) {
+    state.playbackModeId = id;
+    state.repeatCount = 1;
+    state.modeMenuOpen = false;
+    updateModeMenuUI();
+    updateRepeatCounter();
+    updatePlayerUI();
+  }
+
+  // ============================================================
+  // CURSOR TRAIL
+  // ============================================================
+  function initCursorTrail() {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    document.addEventListener("mousemove", function(event) {
+      var now = Date.now();
+      if (now - lastParticleTime < 55) return;
+      lastParticleTime = now;
+
+      var particle = document.createElement("span");
+      particle.className = "ram-pointer";
+      particle.textContent = "राम राम";
+      particle.style.left = event.clientX + "px";
+      particle.style.top = event.clientY + "px";
+
+      var randomX = Math.round(Math.random() * 50 - 25);
+      var randomY = Math.round(45 + Math.random() * 35);
+      var randomRotate = Math.round(Math.random() * 20 - 10);
+
+      particle.style.setProperty("--x", randomX + "px");
+      particle.style.setProperty("--y", randomY + "px");
+      particle.style.setProperty("--rotate", randomRotate + "deg");
+
+      document.body.appendChild(particle);
+      particle.addEventListener("animationend", function() { particle.remove(); }, { once: true });
+    });
+  }
+
+  // ============================================================
+  // LIVE LISTENERS SIMULATION
+  // ============================================================
+  function initLiveListeners() {
+    setInterval(function() {
+      var delta = Math.round((Math.random() - 0.5) * 6);
+      state.liveListeners = Math.max(1, state.liveListeners + delta);
+      var el = document.getElementById("live-listeners-text");
+      if (el) el.textContent = state.liveListeners.toLocaleString("hi-IN") + " भक्त सुन रहे हैं";
+    }, 6000);
+  }
+
+  // ============================================================
+  // KEYBOARD SHORTCUTS
+  // ============================================================
+  function initKeyboard() {
+    window.addEventListener("keydown", function(event) {
+      if (event.target instanceof HTMLInputElement) return;
+
+      if (event.code === "Space") {
+        event.preventDefault();
+        togglePlay();
+      } else if (event.key === "f" || event.key === "F") {
+        toggleFullscreen();
+      } else if (event.key === "l" || event.key === "L") {
+        state.lyricsOpen = !state.lyricsOpen;
+        updateLyricsPanelUI();
+      } else if (event.key === "m" || event.key === "M") {
+        state.modeMenuOpen = !state.modeMenuOpen;
+        updateModeMenuUI();
+      } else if (event.key === "Escape") {
+        state.lyricsOpen = false;
+        state.modeMenuOpen = false;
+        updateLyricsPanelUI();
+        updateModeMenuUI();
+      }
+    });
+  }
+
+  // ============================================================
+  // EVENT BINDING
+  // ============================================================
+  function bindEvents() {
+    // Header buttons
+    document.getElementById("btn-lyrics").addEventListener("click", function() {
+      state.lyricsOpen = true; updateLyricsPanelUI();
+    });
+    document.getElementById("btn-mode").addEventListener("click", function() {
+      state.modeMenuOpen = true; updateModeMenuUI();
+    });
+    document.getElementById("btn-ambient").addEventListener("click", function() {
+      state.ambientMode = !state.ambientMode; updateAmbientUI();
+    });
+    document.getElementById("btn-fullscreen").addEventListener("click", toggleFullscreen);
+
+    // Lyrics panel
+    document.getElementById("btn-close-lyrics").addEventListener("click", function() {
+      state.lyricsOpen = false; updateLyricsPanelUI();
+    });
+    document.getElementById("lyrics-overlay").addEventListener("click", function() {
+      state.lyricsOpen = false; updateLyricsPanelUI();
+    });
+
+    // Mode menu
+    document.getElementById("mode-overlay").addEventListener("click", function() {
+      state.modeMenuOpen = false; updateModeMenuUI();
+    });
+    document.getElementById("mode-menu-list").addEventListener("click", function(e) {
+      var btn = e.target.closest(".mode-option");
+      if (btn) selectMode(btn.getAttribute("data-mode-id"));
+    });
+
+    // Player controls
+    document.getElementById("btn-play").addEventListener("click", togglePlay);
+    document.getElementById("btn-restart").addEventListener("click", restartPlayback);
+    document.getElementById("btn-player-mode").addEventListener("click", function() {
+      state.modeMenuOpen = true; updateModeMenuUI();
+    });
+    document.getElementById("btn-mute").addEventListener("click", toggleMute);
+
+    // Seek
+    document.getElementById("seek-range").addEventListener("input", function(e) {
+      seekTo(Number(e.target.value));
+    });
+
+    // Volume
+    var volEl = document.getElementById("volume-range");
+    volEl.addEventListener("input", function(e) {
+      setVolume(Number(e.target.value));
+    });
+
+    // Fullscreen change
+    document.addEventListener("fullscreenchange", function() {
+      state.isFullscreen = Boolean(document.fullscreenElement);
+      updateFullscreenUI();
+    });
+  }
+
+  // ============================================================
+  // INIT
+  // ============================================================
+  function init() {
+    buildDOM();
+    bindEvents();
+    updatePlayerUI();
+    updateRepeatCounter();
+    initYouTubePlayer();
+    initCursorTrail();
+    initLiveListeners();
+    initKeyboard();
+
+    // Set initial volume range style
+    var volEl = document.getElementById("volume-range");
+    if (volEl) volEl.style.setProperty("--range-progress", "80%");
+
+    // Show volume controls on desktop
+    function updateVolumeVisibility() {
+      var muteBtn = document.getElementById("btn-mute");
+      var volRange = document.getElementById("volume-range");
+      if (window.innerWidth >= 640) {
+        if (muteBtn) muteBtn.style.display = "flex";
+        if (volRange) volRange.style.display = "block";
+      } else {
+        if (muteBtn) muteBtn.style.display = "none";
+        if (volRange) volRange.style.display = "none";
+      }
+    }
+    updateVolumeVisibility();
+    window.addEventListener("resize", updateVolumeVisibility);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
+</script>
+
+</body>
+</html>
